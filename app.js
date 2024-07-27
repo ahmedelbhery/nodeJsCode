@@ -34,27 +34,38 @@ dotenv.config();
 
 // Import required modules
 const express = require("express");
-const booksPath = require("./routes/books");
-const authorPath = require("./routes/authors");
-const authPath = require("./routes/auth");
-const usersPath = require("./routes/users");
 const logger=require("./middlewares/logger");
 const {notFound,errorHandler}=require("./middlewares/errors");
 const connectToDb = require("./config/db");
+const path    = require("path");
+const helmet    = require("helmet");
+const cors    = require("cors");
 
 // Initialize the Express application
 const app = express();
 
+// static folder
+app.use(express.static(path.join(__dirname,"images")));
+
+
 // Apply middlewares
 app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+app.use(logger);
+app.use(helmet());
+//cors policy
+app.use(cors());
 
-app.use(logger)
+//know ejs
+app.set("view engine", "ejs")
 
 // Define routes
-app.use("/api/books", booksPath);
-app.use("/api/authors", authorPath);
-app.use("/api/auth", authPath);
-app.use("/api/users", usersPath);
+app.use("/api/books",  require("./routes/books"));
+app.use("/api/authors", require("./routes/authors"));
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/upload", require("./routes/upload"));
+app.use("/password", require("./routes/password"));
 
 //Error Handler Middleware
 app.use(notFound);
